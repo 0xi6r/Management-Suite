@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/0xi6r/Management-Suite/GoodLife/backend/internal"
+	"github.com/0xi6r/Management-Suite/GoodLife/backend/internal/router"
 )
 
 func main() {
@@ -29,10 +30,10 @@ func main() {
 	logger.Info("Goodlife API starting", zap.String("port", cfg.ServerPort),)
 
 	// building the Chi router (internal/router)
-	handler : = router.New(logger)
+	handler := router.New(logger)
 
 	addr := ":" + cfg.ServerPort
-	if err := http.ListenAndServe(addr, nil); err != nil {
-		panic(err)
+	if err := http.ListenAndServe(addr, handler); err != nil {
+		logger.Fatal("server failed", zap.Error(err))
 	}
 }
