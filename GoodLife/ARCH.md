@@ -24,17 +24,23 @@
 ## Technology
 
 ### Backend
-- **Language:** Zig — chosen for its performance characteristics, predictable memory model, and suitability for high-throughput API services
-- **HTTP Server:** `httpz` — idiomatic, production-capable Zig HTTP framework
-- **Database Client:** `pg.zig` — native Zig PostgreSQL driver with prepared statement support
+- **Language:** Go — chosen for its mature ecosystem, strong concurrency primitives (goroutines), straightforward deployment as a single binary, and extensive production tooling support
+- **HTTP Router:** `chi` — lightweight, idiomatic Go router built on `net/http`; supports middleware chaining, route grouping, and context-based request handling
+- **Database Client:** `pgx/v5` — high-performance native Go PostgreSQL driver with full support for prepared statements, connection pooling via `pgxpool`, and PostgreSQL-specific types
+- **Auth/JWT:** `golang-jwt/jwt` — JWT generation and validation; RS256 signing for stateless, verifiable tokens across services
+- **Migrations:** `golang-migrate` — versioned, repeatable PostgreSQL migrations with CLI and programmatic support
+- **Config:** `godotenv` + `viper` — `.env` loading for local dev, `viper` for environment-aware config management across deployment targets
+- **Validation:** `go-playground/validator` — struct-level request validation with custom rules
+- **Logging:** `zap` (Uber) — structured, high-performance logging suitable for production observability pipelines
 
 ### Database
 - **Primary:** PostgreSQL — relational integrity for clinical and transactional data
 - **Schema design:** Domain-scoped schemas (`ehr`, `scheduling`, `billing`, `audit`, etc.)
-- **Future:** Redis for session caching and pub/sub notification delivery
+- **Connection pooling:** `pgxpool` — managed per-service pool with configurable min/max connections
+- **Future:** Redis for session caching, rate limiting, and pub/sub notification delivery
 
 ### Frontend
-- Web application consuming the Zig-powered REST API
+- Web application consuming the Go-powered REST API
 - Mobile-responsive; native mobile apps planned
 
 ### Infrastructure
@@ -60,12 +66,30 @@
 
 ```
 goodlife/
-├── backend/          # Zig API server
-├── frontend/         # Web application
-├── mobile/           # Mobile apps (planned)
-├── infra/            # Deployment configs, Dockerfiles, Kubernetes manifests
-├── docs/             # Architecture, API reference, compliance docs
-└── migrations/       # PostgreSQL migration files
+├── backend/                  # Go API server
+│   ├── cmd/server/           # main.go — entry point
+│   ├── internal/
+│   │   ├── config/           # Config loading (viper + godotenv)
+│   │   ├── db/               # pgxpool setup, query helpers
+│   │   ├── middleware/       # Auth, logging, rate limiting, audit
+│   │   ├── router/           # chi router + route registration
+│   │   └── modules/          # One package per domain module
+│   │       ├── auth/
+│   │       ├── ehr/
+│   │       ├── scheduling/
+│   │       ├── messaging/
+│   │       ├── nutrition/
+│   │       ├── vitals/
+│   │       ├── medications/
+│   │       ├── sleep/
+│   │       ├── labs/
+│   │       ├── insurance/
+│   │       ├── billing/
+│   │       └── notifications/
+│   ├── migrations/           # golang-migrate SQL files
+│   └── go.mod
+├── frontend/                 # Web application
+├── mobile/                   # Mobile apps (planned)
+├── infra/                    # Dockerfiles, Kubernetes manifests, Helm charts
+└── docs/                     # Architecture, API reference, compliance docs
 ```
-
----
