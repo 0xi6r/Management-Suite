@@ -13,7 +13,7 @@ func Load() (*Config, error) {
 	viper.AutomaticEnv()
 
 	// default values
-	viper.SetDefault("SERVER_PORT", "8080")
+	viper.SetDefault("SERVER_PORT", "8181")
 
 	cfg := &Config{
 		ServerPort: viper.GetString("SERVER_PORT"),
