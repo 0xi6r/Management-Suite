@@ -7,6 +7,7 @@ import (
 type Config struct {
 	ServerPort string
 	DatabaseURL string
+	JWTSecret string
 }
 
 func Load() (*Config, error) {
