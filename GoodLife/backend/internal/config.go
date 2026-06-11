@@ -17,10 +17,12 @@ func Load() (*Config, error) {
 	// default values
 	viper.SetDefault("SERVER_PORT", "8181")
 	viper.SetDefault("DATABASE_URL", "postgres://goodlife:goodlife@localhost:5432/goodlife?sslmode=disable")
+	viper.SetDefault("JWT_SECRET", "change-me-in-production")
 
 	cfg := &Config{
 		ServerPort: viper.GetString("SERVER_PORT"),
 		DatabaseURL: viper.GetString("DATABASE_URL"),
+		JWTSecret: viper.GetString("JWT_SECRET"),
 	}
 	return cfg, nil
 }
