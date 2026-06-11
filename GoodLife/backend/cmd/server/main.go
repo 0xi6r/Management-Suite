@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/joho/godotenv"
-	"github.com/Management-Suite/goodlife/internal/config"
+	"github.com/0xi6r/Management-Suite/GoodLife/internal/config"
 )
 
 func main() {
