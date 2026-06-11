@@ -15,9 +15,6 @@ import (
 )
 
 // register section
-
-// ... existing imports ...
-
 type registerRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -81,6 +78,21 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		h.logger.Error("user insertion failed", zap.Error(err))
 		http.Error(w, `{"error":"internal server error"}`, http.StatusInternalServerError)
 		return
+	}
+
+		// Assign the "patient" role to the new user
+	_, err = h.pool.Exec(r.Context(),
+		`INSERT INTO auth.user_roles (user_id, role_id)
+		SELECT $1, id FROM auth.roles WHERE name = 'patient'`,
+		userID,
+	)
+	if err != nil {
+		// Log the error but don't fail the registration (the user is still created).
+		// In production you'd want to alert, but for now we log and continue.
+		h.logger.Error("failed to assign patient role",
+			zap.String("user_id", userID),
+			zap.Error(err),
+		)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
