@@ -1,0 +1,7 @@
+-- Rollback the initial schemas (order matters due to dependencies)
+DROP SCHEMA IF EXISTS audit CASCADE;
+DROP SCHEMA IF EXISTS billing CASCADE;
+DROP SCHEMA IF EXISTS messaging CASCADE;
+DROP SCHEMA IF EXISTS scheduling CASCADE;
+DROP SCHEMA IF EXISTS ehr CASCADE;
+DROP SCHEMA IF EXISTS auth CASCADE;
