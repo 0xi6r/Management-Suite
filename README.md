@@ -37,4 +37,4 @@ The **Management Systems Suite** is a collection of secure management tools desi
 
 ## Contact
 
-*[Optional: email, Twitter, or link to your other projects]*
+*[Email: 0xi6r@tutamail.com]*
