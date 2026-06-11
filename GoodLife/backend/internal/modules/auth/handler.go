@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
+	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -13,6 +14,85 @@ import (
 	"github.com/0xi6r/Management-Suite/GoodLife/backend/internal/middleware"
 )
 
+// register section
+
+// ... existing imports ...
+
+type registerRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	FullName string `json:"full_name"`
+}
+
+type registerResponse struct {
+	Message string `json:"message"`
+	UserID  string `json:"user_id"`
+}
+
+func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
+	var req registerRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, `{"error":"invalid request body"}`, http.StatusBadRequest)
+		return
+	}
+
+	// Basic validation
+	req.Email = strings.TrimSpace(req.Email)
+	req.Password = strings.TrimSpace(req.Password)
+	req.FullName = strings.TrimSpace(req.FullName)
+
+	if req.Email == "" || req.Password == "" || req.FullName == "" {
+		http.Error(w, `{"error":"email, password, and full_name are required"}`, http.StatusBadRequest)
+		return
+	}
+	if len(req.Password) < 8 {
+		http.Error(w, `{"error":"password must be at least 8 characters"}`, http.StatusBadRequest)
+		return
+	}
+	// Simple email format check (not exhaustive)
+	if !strings.Contains(req.Email, "@") {
+		http.Error(w, `{"error":"invalid email format"}`, http.StatusBadRequest)
+		return
+	}
+
+	// Hash the password
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		h.logger.Error("password hashing failed", zap.Error(err))
+		http.Error(w, `{"error":"internal server error"}`, http.StatusInternalServerError)
+		return
+	}
+
+	// Insert user
+	var userID string
+	err = h.pool.QueryRow(r.Context(),
+		`INSERT INTO auth.users (email, password_hash, full_name)
+		 VALUES ($1, $2, $3)
+		 RETURNING id`,
+		req.Email, string(hash), req.FullName,
+	).Scan(&userID)
+
+	if err != nil {
+		// Check for duplicate email (PostgreSQL error code 23505)
+		if strings.Contains(err.Error(), "23505") {
+			http.Error(w, `{"error":"email already registered"}`, http.StatusConflict)
+			return
+		}
+		h.logger.Error("user insertion failed", zap.Error(err))
+		http.Error(w, `{"error":"internal server error"}`, http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(registerResponse{
+		Message: "registration successful",
+		UserID:  userID,
+	})
+}
+
+
+// login and other
 type Handler struct {
 	pool      *pgxpool.Pool
 	jwtSecret []byte

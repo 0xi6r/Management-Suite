@@ -15,7 +15,7 @@ func Load() (*Config, error) {
 	viper.AutomaticEnv()
 
 	// default values
-	viper.SetDefault("SERVER_PORT", "8181")
+	viper.SetDefault("SERVER_PORT", "8080")
 	viper.SetDefault("DATABASE_URL", "postgres://goodlife:goodlife@localhost:5432/goodlife?sslmode=disable")
 	viper.SetDefault("JWT_SECRET", "change-me-in-production")
 

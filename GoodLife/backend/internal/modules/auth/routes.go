@@ -11,6 +11,7 @@ import (
 func RegisterRoutes(r chi.Router, pool *pgxpool.Pool, jwtSecret string, logger *zap.Logger) {
 	h := NewHandler(pool, jwtSecret, logger)
 	r.Post("/login", h.Login)
+	r.Post("/register", h.Register)
 
 	// Protected group: requires valid JWT
 	r.Group(func(r chi.Router) {
