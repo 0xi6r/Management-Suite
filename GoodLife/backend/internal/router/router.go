@@ -9,9 +9,10 @@ import (
 	"go.uber.org/zap"
 
 	mw "github.com/0xi6r/Management-Suite/GoodLife/backend/internal/middleware"
+	"github.com/0xi6r/Management-Suite/GoodLife/backend/internal/modules/auth"
 )
 
-func New(logger *zap.Logger, pool *pgxpool.Pool) http.Handler {
+func New(logger *zap.Logger, pool *pgxpool.Pool, jwtSecret string) http.Handler {
 	r := chi.NewRouter()
 
 	// Chi's built-in middlewares
@@ -32,6 +33,13 @@ func New(logger *zap.Logger, pool *pgxpool.Pool) http.Handler {
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("ok"))
+	})
+
+	r.Route("/api/v1", func(r chi.Router) {
+		// Pass dependencies to auth module
+		r.Route("/auth", func(r chi.Router) {
+			auth.RegisterRoutes(r, pool, jwtSecret, logger)
+		})
 	})
 
 	return r

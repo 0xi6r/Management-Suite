@@ -40,7 +40,7 @@ func main() {
 	logger.Info("db conn established")
 
 	// building the Chi router (internal/router)
-	handler := router.New(logger, pool)
+	handler := router.New(logger, pool, cfg.JWTSecret)
 
 	addr := ":" + cfg.ServerPort
 	if err := http.ListenAndServe(addr, handler); err != nil {
