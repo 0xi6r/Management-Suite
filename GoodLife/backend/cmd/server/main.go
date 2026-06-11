@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/joho/godotenv"
@@ -29,10 +28,8 @@ func main() {
 
 	logger.Info("Goodlife API starting", zap.String("port", cfg.ServerPort),)
 
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, "ok")
-	})
+	// building the Chi router (internal/router)
+	handler : = router.New(logger)
 
 	addr := ":" + cfg.ServerPort
 	if err := http.ListenAndServe(addr, nil); err != nil {
