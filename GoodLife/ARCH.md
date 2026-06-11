@@ -24,7 +24,7 @@
 ## Technology
 
 ### Backend
-- **Language:** GO
+- **Language:** Zig — chosen for its performance characteristics, predictable memory model, and suitability for high-throughput API services
 - **HTTP Server:** `httpz` — idiomatic, production-capable Zig HTTP framework
 - **Database Client:** `pg.zig` — native Zig PostgreSQL driver with prepared statement support
 
